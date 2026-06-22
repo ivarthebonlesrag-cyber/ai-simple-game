@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleCraft - AI Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 SimpleCraft</h1>
+            <div class="stats">
+                <div class="stat">
+                    <span class="label">Health:</span>
+                    <div class="health-bar">
+                        <div id="healthFill" class="health-fill"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <span class="label">Hunger:</span>
+                    <div class="hunger-bar">
+                        <div id="hungerFill" class="hunger-fill"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <span class="label">Blocks:</span>
+                    <span id="blockCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>🎮 Controls</h3>
+                <ul>
+                    <li><strong>Arrow Keys / WASD:</strong> Move</li>
+                    <li><strong>Mouse:</strong> Look Around</li>
+                    <li><strong>Left Click:</strong> Break Block</li>
+                    <li><strong>Right Click:</strong> Place Block</li>
+                    <li><strong>Space:</strong> Jump</li>
+                    <li><strong>1-5:</strong> Select Block Type</li>
+                </ul>
+            </div>
+
+            <div class="inventory">
+                <h3>📦 Inventory</h3>
+                <div class="block-selector">
+                    <button class="block-btn active" data-block="1" style="background: #8B7355;">🪵 Wood</button>
+                    <button class="block-btn" data-block="2" style="background: #A9A9A9;">🪨 Stone</button>
+                    <button class="block-btn" data-block="3" style="background: #90EE90;">🌱 Grass</button>
+                    <button class="block-btn" data-block="4" style="background: #FFD700;">⭐ Gold</button>
+                    <button class="block-btn" data-block="5" style="background: #FF6347;">🔴 Red</button>
+                </div>
+            </div>
+
+            <div class="info">
+                <h3>ℹ️ Info</h3>
+                <p>Build, explore, and survive in this simple voxel world! Break blocks to collect them, then place them to create amazing structures!</p>
+                <button id="resetBtn">🔄 Reset Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
