@@ -1,71 +1,1349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimpleCraft - AI Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08151a" />
+  <title>Iron &amp; Oath — War and Politics in Westeros</title>
+  <style>
+    :root {
+      --ink: #e8dcc2;
+      --ink-strong: #f3e8cd;
+      --muted: #8f9a91;
+      --dim: #64736f;
+      --bg: #071318;
+      --bg-soft: #0b1a20;
+      --panel: #0e2027;
+      --panel-raised: #122a31;
+      --panel-deep: #09181d;
+      --line: rgba(161, 178, 163, .16);
+      --line-strong: rgba(201, 157, 83, .38);
+      --gold: #c99d53;
+      --gold-bright: #e8bb6a;
+      --rust: #a85848;
+      --rust-bright: #d26f5b;
+      --ice: #89b7b9;
+      --teal: #4d8b87;
+      --green: #7d9b72;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .38);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(65, 110, 111, .16), transparent 28rem),
+        radial-gradient(circle at 85% 22%, rgba(170, 101, 60, .08), transparent 26rem),
+        linear-gradient(145deg, #061217 0%, #0a171c 48%, #071116 100%);
+      font: 13px/1.45 var(--sans);
+      letter-spacing: .01em;
+    }
+
+    button { font: inherit; }
+    button:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid var(--gold-bright);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      width: min(1680px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      border-inline: 1px solid rgba(191, 175, 131, .08);
+      background: linear-gradient(180deg, rgba(12, 28, 34, .78), rgba(5, 14, 18, .94));
+      box-shadow: 0 0 100px rgba(0, 0, 0, .28);
+    }
+
+    .topbar {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 13px 24px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 18, 23, .86);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 226px;
+    }
+    .brand-mark {
+      width: 39px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      color: var(--gold-bright);
+      font-family: var(--serif);
+      font-size: 23px;
+      border: 1px solid rgba(201, 157, 83, .76);
+      border-radius: 7px 7px 13px 13px;
+      background: linear-gradient(155deg, #1a3033, #0b1a20);
+      box-shadow: inset 0 0 0 3px rgba(201, 157, 83, .09), 0 4px 18px rgba(0, 0, 0, .26);
+    }
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: -5px;
+      height: 1px;
+      background: var(--gold);
+      opacity: .55;
+    }
+    .brand h1 {
+      margin: 0;
+      color: var(--ink-strong);
+      font: 700 17px/1.1 var(--serif);
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .brand p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: stretch;
+      align-self: stretch;
+      gap: 4px;
+      flex: 1;
+    }
+    .nav-btn {
+      position: relative;
+      min-width: 95px;
+      padding: 5px 12px 2px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      transition: color .2s ease, background .2s ease;
+    }
+    .nav-btn span { display: block; font-size: 17px; margin-bottom: 1px; color: inherit; }
+    .nav-btn:hover { color: var(--ink); background: rgba(255, 255, 255, .025); }
+    .nav-btn.active { color: var(--gold-bright); }
+    .nav-btn.active::after {
+      content: "";
+      position: absolute;
+      left: 19px;
+      right: 19px;
+      bottom: 0;
+      height: 2px;
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(201, 157, 83, .65);
+    }
+
+    .top-status {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      white-space: nowrap;
+    }
+    .era-block { text-align: right; }
+    .era-block strong { display: block; color: var(--ink-strong); font: 700 13px var(--serif); }
+    .era-block small { color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+    .divider { height: 28px; width: 1px; background: var(--line); }
+    .profile-dot {
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      color: var(--gold-bright);
+      border: 1px solid rgba(201, 157, 83, .55);
+      border-radius: 50%;
+      background: #182b2f;
+      font-size: 17px;
+    }
+
+    .campaign-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 51px;
+      padding: 8px 24px;
+      background: #0a1b21;
+      border-bottom: 1px solid var(--line);
+      box-shadow: inset 0 -1px 0 rgba(201, 157, 83, .035);
+    }
+    .campaign-context { display: flex; align-items: center; gap: 12px; }
+    .season-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      color: var(--ice);
+      border: 1px solid rgba(137, 183, 185, .36);
+      border-radius: 50%;
+      background: rgba(137, 183, 185, .08);
+      font-size: 15px;
+    }
+    .campaign-context strong { color: var(--ink); font: 700 12px var(--serif); }
+    .campaign-context small { color: var(--muted); font-size: 10px; }
+    .resource-list { display: flex; align-items: center; gap: 22px; }
+    .resource { display: flex; align-items: center; gap: 7px; }
+    .resource-icon { color: var(--gold); font-size: 15px; }
+    .resource-copy { line-height: 1.05; }
+    .resource-copy b { display: block; color: var(--ink); font-size: 12px; }
+    .resource-copy small { color: var(--dim); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+    .resource-copy .positive { color: var(--green); font-size: 10px; margin-left: 3px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 238px minmax(560px, 1fr) 294px;
+      gap: 0;
+      min-height: calc(100vh - 127px);
+    }
+
+    .left-rail, .right-rail {
+      padding: 18px 15px 24px;
+      background: rgba(8, 20, 25, .72);
+    }
+    .left-rail { border-right: 1px solid var(--line); }
+    .right-rail { border-left: 1px solid var(--line); }
+    .main-column { min-width: 0; padding: 21px 22px 34px; }
+
+    .panel {
+      position: relative;
+      padding: 15px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: linear-gradient(145deg, rgba(18, 42, 49, .91), rgba(10, 26, 32, .96));
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .1);
+    }
+    .panel:last-child { margin-bottom: 0; }
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 14px;
+      width: 27px;
+      height: 1px;
+      background: var(--gold);
+      opacity: .66;
+    }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 13px;
+    }
+    .section-title h2, .section-title h3 {
+      margin: 0;
+      color: var(--ink-strong);
+      font: 700 14px var(--serif);
+      letter-spacing: .01em;
+    }
+    .section-title small { color: var(--dim); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+
+    .house-card {
+      padding: 15px 14px 13px;
+      background:
+        radial-gradient(circle at 92% 7%, rgba(137, 183, 185, .13), transparent 44%),
+        linear-gradient(145deg, #132e34, #0c2027 70%);
+    }
+    .house-identity { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+    .house-sigil {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #d5e0dc;
+      background: #243d41;
+      border: 1px solid rgba(137, 183, 185, .47);
+      border-radius: 7px 7px 14px 14px;
+      font-size: 23px;
+      box-shadow: inset 0 -8px 14px rgba(5, 15, 19, .25);
+    }
+    .house-identity h2 { margin: 0; color: var(--ink-strong); font: 700 18px var(--serif); }
+    .house-card .title-line { margin: 2px 0 0; color: var(--ice); font-size: 10px; }
+    .motto { margin: 12px 0 13px; color: #bccbc2; font: italic 12px var(--serif); }
+    .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .mini-stat span { display: block; color: var(--dim); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+    .mini-stat strong { display: block; margin-top: 2px; color: var(--ink); font: 700 15px var(--serif); }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 8px 13px;
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: rgba(201, 157, 83, .07);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: border-color .2s, background .2s, color .2s, transform .2s;
+    }
+    .button:hover { color: var(--ink-strong); border-color: var(--gold); background: rgba(201, 157, 83, .15); transform: translateY(-1px); }
+    .button:active { transform: translateY(0); }
+    .button.primary { width: 100%; margin-top: 14px; color: #17201c; border-color: var(--gold-bright); background: linear-gradient(130deg, var(--gold-bright), #b47d3c); box-shadow: 0 4px 15px rgba(190, 132, 55, .16); }
+    .button.primary:hover { color: #0c1718; background: linear-gradient(130deg, #f0c978, #ca9150); }
+    .button.ghost { border-color: rgba(161, 178, 163, .18); background: rgba(255, 255, 255, .025); }
+    .button.danger { color: #e3a398; border-color: rgba(168, 88, 72, .45); background: rgba(168, 88, 72, .08); }
+    .button.small { min-height: 28px; padding: 6px 8px; font-size: 9px; }
+    .button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    .house-list { display: grid; gap: 2px; }
+    .house-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 7px;
+      color: var(--muted);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .house-row:hover { color: var(--ink); background: rgba(255, 255, 255, .035); }
+    .house-row.active { color: var(--ink); border-color: rgba(201, 157, 83, .25); background: rgba(201, 157, 83, .08); }
+    .row-sigil {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--gold-bright);
+      border: 1px solid rgba(201, 157, 83, .28);
+      border-radius: 4px;
+      background: rgba(201, 157, 83, .07);
+      font-size: 12px;
+    }
+    .house-row em { margin-left: auto; color: var(--dim); font-size: 9px; font-style: normal; }
+    .house-row.active em { color: var(--gold); }
+
+    .influence { margin: 10px 0 14px; }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--muted); font-size: 10px; }
+    .progress-label b { color: var(--ink); font-size: 10px; }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 4px; background: #071419; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--teal), var(--ice)); }
+    .progress-fill.gold { background: linear-gradient(90deg, #866233, var(--gold-bright)); }
+    .progress-fill.red { background: linear-gradient(90deg, #72382f, var(--rust-bright)); }
+    .rail-note { margin: 11px 0 0; color: var(--dim); font-size: 10px; line-height: 1.55; }
+
+    .content-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 17px;
+    }
+    .content-head h2 { margin: 4px 0 3px; color: var(--ink-strong); font: 700 clamp(25px, 3vw, 37px)/1.05 var(--serif); letter-spacing: -.025em; }
+    .content-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .head-actions { display: flex; align-items: center; gap: 8px; }
+    .round-chip { padding: 9px 11px; color: var(--ice); border: 1px solid rgba(137, 183, 185, .24); border-radius: 4px; background: rgba(137, 183, 185, .07); text-align: right; }
+    .round-chip b { display: block; color: var(--ink); font: 700 15px var(--serif); }
+    .round-chip small { display: block; margin-top: 1px; color: var(--dim); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+
+    .map-card {
+      overflow: hidden;
+      border: 1px solid rgba(198, 174, 125, .23);
+      border-radius: 7px;
+      background: #10252b;
+      box-shadow: var(--shadow);
+    }
+    .map-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 55px;
+      padding: 10px 15px;
+      border-bottom: 1px solid rgba(211, 191, 145, .17);
+      background: linear-gradient(180deg, rgba(24, 48, 53, .95), rgba(16, 37, 43, .95));
+    }
+    .map-card-head .map-name { display: flex; align-items: center; gap: 10px; }
+    .map-icon { color: var(--gold-bright); font-size: 19px; }
+    .map-name strong { display: block; color: var(--ink-strong); font: 700 14px var(--serif); }
+    .map-name small { display: block; color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+    .layer-tabs { display: flex; gap: 3px; }
+    .layer-btn {
+      padding: 7px 9px;
+      color: var(--dim);
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .layer-btn:hover { color: var(--ink); }
+    .layer-btn.active { color: var(--gold-bright); border-color: rgba(201, 157, 83, .34); background: rgba(201, 157, 83, .08); }
+
+    .map-stage {
+      min-height: 569px;
+      position: relative;
+      overflow: hidden;
+      background: #123139;
+      cursor: grab;
+    }
+    .map-stage:active { cursor: grabbing; }
+    .map-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(100deg, rgba(16, 48, 53, .18), transparent 28%, transparent 76%, rgba(4, 17, 21, .32));
+      mix-blend-mode: multiply;
+    }
+    #realmMap { width: 100%; height: 569px; display: block; }
+    .map-water { fill: url(#waterPattern); }
+    .water-detail { fill: none; stroke: rgba(164, 205, 200, .12); stroke-width: 1.2; stroke-linecap: round; }
+    .map-world { transform-origin: 450px 350px; transition: transform .3s ease; }
+    .land-back { fill: #aa9874; stroke: #402f27; stroke-width: 5; stroke-linejoin: round; filter: url(#landShadow); }
+    .region-shape {
+      fill: var(--fill);
+      stroke: rgba(46, 38, 31, .84);
+      stroke-width: 2.2;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: filter .18s, opacity .18s, stroke .18s;
+    }
+    .region-shape:hover { filter: brightness(1.14) saturate(1.08); stroke: #e2c57d; stroke-width: 3; }
+    .region-shape.selected { stroke: #f1c871; stroke-width: 3.7; filter: brightness(1.12) saturate(1.1) url(#selectedGlow); }
+    .region-shape.dimmed { opacity: .52; }
+    .coast-line { fill: none; stroke: rgba(236, 216, 168, .45); stroke-width: 1.4; stroke-linecap: round; }
+    .terrain { fill: none; stroke: rgba(38, 44, 39, .52); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+    .terrain-ice { stroke: rgba(215, 231, 218, .39); }
+    .road { fill: none; stroke: rgba(92, 65, 42, .62); stroke-width: 2; stroke-dasharray: 5 4; }
+    .route-line { fill: none; stroke: #e6b55e; stroke-width: 2.3; stroke-dasharray: 7 6; opacity: .8; marker-end: url(#routeArrow); }
+    .route-line.trade { stroke: #7fc3bc; marker-end: url(#tradeArrow); }
+    .route-line.hidden { display: none; }
+    .map-label { pointer-events: none; fill: rgba(38, 36, 29, .82); text-anchor: middle; font-family: var(--serif); font-weight: 700; font-size: 13px; letter-spacing: .055em; }
+    .map-label.small { font-size: 10px; font-weight: 600; letter-spacing: .08em; }
+    .map-label.major { fill: rgba(31, 30, 25, .92); font-size: 16px; letter-spacing: .11em; }
+    .sea-label { fill: rgba(163, 207, 203, .32); text-anchor: middle; font: italic 13px var(--serif); letter-spacing: .12em; }
+    .settlement { cursor: pointer; }
+    .settlement circle { fill: #d9b96f; stroke: #352e23; stroke-width: 2; }
+    .settlement text { pointer-events: none; fill: #30291f; font: 700 9px var(--sans); letter-spacing: .04em; }
+    .settlement.major circle { fill: #eccb7f; stroke-width: 2.5; }
+    .settlement.major text { font-size: 10px; }
+    .settlement:hover circle { fill: #fff0ba; }
+    .army-layer, .trade-layer { pointer-events: none; }
+    .army-marker { pointer-events: auto; cursor: pointer; }
+    .army-marker circle { fill: #8f433b; stroke: #f0c472; stroke-width: 2; filter: url(#markerShadow); }
+    .army-marker text { fill: #f7e4b7; text-anchor: middle; font: 800 9px var(--sans); pointer-events: none; }
+    .army-marker.enemy circle { fill: #382b42; stroke: #cc7d94; }
+    .port-ring { fill: none; stroke: #7fc3bc; stroke-width: 2; opacity: .8; }
+    .map-controls { position: absolute; right: 14px; top: 14px; display: grid; gap: 4px; z-index: 2; }
+    .map-control {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      border: 1px solid rgba(218, 193, 140, .28);
+      border-radius: 4px;
+      background: rgba(8, 28, 33, .81);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, .2);
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .map-control:hover { color: var(--gold-bright); border-color: var(--gold); }
+    .map-legend { position: absolute; left: 14px; bottom: 13px; z-index: 2; padding: 9px 10px; border: 1px solid rgba(218, 193, 140, .2); border-radius: 4px; background: rgba(8, 27, 32, .78); backdrop-filter: blur(8px); }
+    .legend-title { margin-bottom: 6px; color: var(--gold); font-size: 8px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .legend-row { display: flex; align-items: center; gap: 6px; color: #b6c2b8; font-size: 9px; }
+    .legend-row + .legend-row { margin-top: 4px; }
+    .legend-swatch { width: 12px; height: 8px; border: 1px solid rgba(240, 214, 156, .44); border-radius: 1px; }
+    .legend-swatch.realm { background: #728b83; }
+    .legend-swatch.enemy { width: 8px; height: 8px; border-radius: 50%; background: #8f433b; }
+    .legend-swatch.route { height: 0; border: 0; border-top: 2px dashed #e6b55e; }
+    .map-compass { position: absolute; right: 19px; bottom: 17px; z-index: 2; width: 54px; height: 54px; display: grid; place-items: center; color: rgba(236, 211, 158, .74); border: 1px solid rgba(236, 211, 158, .33); border-radius: 50%; background: rgba(7, 27, 31, .6); font: 700 11px var(--serif); }
+    .map-compass::before { content: "✦"; position: absolute; top: 3px; color: var(--gold-bright); font-size: 20px; }
+    .map-compass span { transform: translateY(15px); font-size: 8px; letter-spacing: .1em; }
+    .map-tooltip { position: absolute; z-index: 5; display: none; pointer-events: none; min-width: 155px; padding: 9px 10px; border: 1px solid rgba(227, 193, 121, .55); border-radius: 4px; background: rgba(8, 22, 27, .96); box-shadow: 0 8px 22px rgba(0, 0, 0, .3); }
+    .map-tooltip.visible { display: block; }
+    .map-tooltip strong { display: block; color: var(--gold-bright); font: 700 13px var(--serif); }
+    .map-tooltip span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+
+    .map-footer {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      border-top: 1px solid rgba(211, 191, 145, .14);
+      background: #0e242a;
+    }
+    .map-foot-cell { padding: 11px 14px; border-right: 1px solid rgba(211, 191, 145, .1); }
+    .map-foot-cell:last-child { border-right: 0; }
+    .map-foot-cell span { display: block; color: var(--dim); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; }
+    .map-foot-cell strong { display: block; margin-top: 3px; color: var(--ink); font: 700 12px var(--serif); }
+    .map-foot-cell .signal { color: var(--rust-bright); }
+
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .9fr); gap: 14px; margin-top: 15px; }
+    .front-list { display: grid; gap: 1px; }
+    .front-row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 9px; padding: 9px 4px; border-bottom: 1px solid rgba(161, 178, 163, .1); }
+    .front-row:last-child { border-bottom: 0; }
+    .front-icon { width: 28px; height: 28px; display: grid; place-items: center; color: var(--rust-bright); border: 1px solid rgba(168, 88, 72, .3); border-radius: 50%; background: rgba(168, 88, 72, .08); }
+    .front-copy strong { display: block; color: var(--ink); font: 700 12px var(--serif); }
+    .front-copy small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+    .front-status { color: var(--rust-bright); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
+    .front-status.safe { color: var(--green); }
+    .whisper { padding: 10px 0; border-bottom: 1px solid rgba(161, 178, 163, .1); }
+    .whisper:first-child { padding-top: 0; }
+    .whisper:last-child { padding-bottom: 0; border-bottom: 0; }
+    .whisper b { display: block; color: var(--ink); font: 700 12px var(--serif); }
+    .whisper p { margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.48; }
+    .whisper time { display: block; margin-top: 5px; color: var(--gold); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+
+    .right-rail .panel { padding: 14px; }
+    .region-card { padding-top: 16px !important; }
+    .region-heading { display: flex; align-items: flex-start; gap: 10px; margin: 11px 0 13px; }
+    .region-swatch { width: 9px; min-height: 42px; border-radius: 2px; background: var(--region-color, #728b83); box-shadow: 0 0 12px color-mix(in srgb, var(--region-color, #728b83), transparent 55%); }
+    .region-heading h2 { margin: 0; color: var(--ink-strong); font: 700 20px/1.1 var(--serif); }
+    .region-heading p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .region-loyalty { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; color: var(--green); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .region-loyalty::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+    .region-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 0 0 13px; }
+    .fact { padding: 8px; border: 1px solid rgba(161, 178, 163, .12); border-radius: 3px; background: rgba(255, 255, 255, .018); }
+    .fact span { display: block; color: var(--dim); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+    .fact strong { display: block; margin-top: 2px; color: var(--ink); font: 700 13px var(--serif); }
+    .region-bar { margin: 9px 0; }
+    .region-bar .progress-label { margin-bottom: 5px; }
+    .region-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 14px; }
+    .region-actions .button:last-child { grid-column: span 2; }
+
+    .alert-panel { border-color: rgba(168, 88, 72, .32); background: linear-gradient(145deg, rgba(66, 38, 38, .42), rgba(14, 31, 36, .95)); }
+    .alert-panel::before { background: var(--rust-bright); }
+    .alert-kicker { display: flex; justify-content: space-between; gap: 7px; color: var(--rust-bright); font-size: 8px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .alert-kicker span:last-child { color: var(--dim); font-weight: 600; letter-spacing: .08em; }
+    .alert-panel h3 { margin: 10px 0 4px; color: var(--ink-strong); font: 700 15px var(--serif); }
+    .alert-panel p { margin: 0 0 11px; color: #b6aaa1; font-size: 10px; line-height: 1.5; }
+
+    .raven-list { display: grid; gap: 0; }
+    .raven-entry { display: grid; grid-template-columns: 22px 1fr; gap: 9px; padding: 9px 0; border-bottom: 1px solid rgba(161, 178, 163, .1); }
+    .raven-entry:last-child { border-bottom: 0; padding-bottom: 0; }
+    .raven-entry:first-child { padding-top: 0; }
+    .raven-icon { color: var(--gold); font-size: 15px; }
+    .raven-entry p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .raven-entry p strong { color: var(--ink); font-weight: 700; }
+    .raven-entry time { display: block; margin-top: 3px; color: var(--dim); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+
+    .chronicle-panel { display: none; }
+    body[data-view="council"] .chronicle-panel,
+    body[data-view="chronicle"] .chronicle-panel { display: block; }
+    body[data-view="council"] .map-card,
+    body[data-view="chronicle"] .map-card { filter: saturate(.8); }
+    body[data-view="war"] .map-card { border-color: rgba(168, 88, 72, .43); }
+    body[data-view="war"] .map-card-head { background: linear-gradient(180deg, rgba(61, 35, 36, .85), rgba(31, 28, 31, .95)); }
+    body[data-view="council"] .map-card-head { background: linear-gradient(180deg, rgba(30, 51, 46, .95), rgba(16, 37, 43, .95)); }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 50;
+      max-width: 320px;
+      padding: 12px 15px;
+      color: var(--ink);
+      border: 1px solid rgba(201, 157, 83, .47);
+      border-left: 3px solid var(--gold);
+      border-radius: 4px;
+      background: rgba(10, 26, 31, .97);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity .25s, transform .25s;
+    }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .toast strong { display: block; color: var(--gold-bright); font: 700 12px var(--serif); }
+    .toast span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; padding: 18px; background: rgba(3, 9, 12, .78); backdrop-filter: blur(8px); }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(520px, 100%); padding: 22px; position: relative; border: 1px solid rgba(201, 157, 83, .43); border-radius: 7px; background: linear-gradient(145deg, #152c31, #0b1b21); box-shadow: 0 25px 70px rgba(0, 0, 0, .52); }
+    .modal::before { content: ""; position: absolute; top: -1px; left: 20px; width: 52px; height: 2px; background: var(--gold); }
+    .modal-close { position: absolute; top: 10px; right: 11px; width: 28px; height: 28px; color: var(--muted); border: 0; background: transparent; cursor: pointer; font-size: 18px; }
+    .modal-close:hover { color: var(--ink); }
+    .modal .eyebrow { margin-bottom: 10px; }
+    .modal h2 { margin: 0; color: var(--ink-strong); font: 700 23px var(--serif); }
+    .modal > p { margin: 9px 0 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .choice-list { display: grid; gap: 8px; }
+    .choice { width: 100%; padding: 12px; color: var(--ink); border: 1px solid rgba(161, 178, 163, .17); border-radius: 4px; background: rgba(255, 255, 255, .025); cursor: pointer; text-align: left; }
+    .choice:hover { border-color: rgba(201, 157, 83, .62); background: rgba(201, 157, 83, .09); }
+    .choice strong { display: block; color: var(--gold-bright); font: 700 13px var(--serif); }
+    .choice span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    @media (max-width: 1250px) {
+      .workspace { grid-template-columns: 210px minmax(500px, 1fr) 270px; }
+      .topbar { gap: 12px; padding-inline: 15px; }
+      .brand { min-width: 205px; }
+      .nav-btn { min-width: 77px; padding-inline: 7px; }
+      .resource-list { gap: 12px; }
+      .main-column { padding-inline: 16px; }
+      .map-stage, #realmMap { min-height: 520px; height: 520px; }
+    }
+    @media (max-width: 1020px) {
+      .workspace { grid-template-columns: 190px minmax(0, 1fr); }
+      .right-rail { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 14px 16px 22px; border-top: 1px solid var(--line); border-left: 0; }
+      .right-rail .panel { margin-bottom: 0; }
+      .top-status { display: none; }
+    }
+    @media (max-width: 760px) {
+      .topbar { min-height: 66px; flex-wrap: wrap; padding-block: 9px; }
+      .brand { min-width: 0; flex: 1; }
+      .brand h1 { font-size: 14px; }
+      .brand p { font-size: 7px; letter-spacing: .13em; }
+      .brand-mark { width: 34px; height: 39px; font-size: 19px; }
+      .main-nav { order: 3; width: 100%; min-height: 38px; justify-content: space-between; border-top: 1px solid var(--line); }
+      .nav-btn { flex: 1; min-width: 0; font-size: 8px; }
+      .nav-btn span { font-size: 14px; }
+      .nav-btn.active::after { left: 18%; right: 18%; }
+      .campaign-strip { align-items: flex-start; flex-direction: column; padding: 10px 15px; }
+      .resource-list { width: 100%; justify-content: space-between; gap: 6px; }
+      .resource-copy small { font-size: 7px; }
+      .workspace { display: block; }
+      .left-rail { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 15px 0; border-right: 0; }
+      .left-rail .panel { margin-bottom: 0; }
+      .left-rail .panel:first-child { grid-row: span 2; }
+      .left-rail .panel:last-child { grid-column: span 1; }
+      .main-column { padding: 18px 15px 24px; }
+      .right-rail { display: block; padding: 0 15px 24px; }
+      .right-rail .panel { margin-bottom: 12px; }
+      .content-head { align-items: flex-start; flex-direction: column; gap: 11px; }
+      .head-actions { width: 100%; justify-content: space-between; }
+      .map-card-head { align-items: flex-start; flex-direction: column; }
+      .layer-tabs { width: 100%; overflow-x: auto; }
+      .layer-btn { flex: 1; white-space: nowrap; }
+      .map-stage, #realmMap { min-height: 430px; height: 430px; }
+      .map-footer { grid-template-columns: 1fr 1fr; }
+      .map-foot-cell:first-child { grid-column: span 2; border-bottom: 1px solid rgba(211, 191, 145, .1); }
+      .map-foot-cell:nth-child(2) { border-bottom: 0; }
+      .lower-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .left-rail { grid-template-columns: 1fr; }
+      .left-rail .panel:first-child { grid-row: auto; }
+      .left-rail .panel:last-child { grid-column: auto; }
+      .map-stage, #realmMap { min-height: 350px; height: 350px; }
+      .map-legend { transform: scale(.86); transform-origin: left bottom; }
+      .map-compass { transform: scale(.78); transform-origin: right bottom; }
+      .map-label.major { font-size: 12px; }
+      .map-label { font-size: 10px; }
+      .map-label.small { font-size: 8px; }
+      .round-chip { display: none; }
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎮 SimpleCraft</h1>
-            <div class="stats">
-                <div class="stat">
-                    <span class="label">Health:</span>
-                    <div class="health-bar">
-                        <div id="healthFill" class="health-fill"></div>
-                    </div>
-                </div>
-                <div class="stat">
-                    <span class="label">Hunger:</span>
-                    <div class="hunger-bar">
-                        <div id="hungerFill" class="hunger-fill"></div>
-                    </div>
-                </div>
-                <div class="stat">
-                    <span class="label">Blocks:</span>
-                    <span id="blockCount">0</span>
-                </div>
-            </div>
+<body data-view="map">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">♜</div>
+        <div>
+          <h1>Iron &amp; Oath</h1>
+          <p>A war &amp; politics chronicle of Westeros</p>
         </div>
+      </div>
+      <nav class="main-nav" aria-label="Campaign views">
+        <button class="nav-btn active" data-view="map"><span>◈</span>Realm</button>
+        <button class="nav-btn" data-view="council"><span>♜</span>Council</button>
+        <button class="nav-btn" data-view="war"><span>⚔</span>War</button>
+        <button class="nav-btn" data-view="chronicle"><span>✒</span>Chronicle</button>
+      </nav>
+      <div class="top-status">
+        <div class="era-block"><strong>298 AC</strong><small>Late autumn</small></div>
+        <div class="divider"></div>
+        <div class="profile-dot" aria-label="House Stark">🐺</div>
+      </div>
+    </header>
 
-        <div class="game-area">
-            <canvas id="gameCanvas"></canvas>
-        </div>
-
-        <div class="controls">
-            <div class="control-group">
-                <h3>🎮 Controls</h3>
-                <ul>
-                    <li><strong>Arrow Keys / WASD:</strong> Move</li>
-                    <li><strong>Mouse:</strong> Look Around</li>
-                    <li><strong>Left Click:</strong> Break Block</li>
-                    <li><strong>Right Click:</strong> Place Block</li>
-                    <li><strong>Space:</strong> Jump</li>
-                    <li><strong>1-5:</strong> Select Block Type</li>
-                </ul>
-            </div>
-
-            <div class="inventory">
-                <h3>📦 Inventory</h3>
-                <div class="block-selector">
-                    <button class="block-btn active" data-block="1" style="background: #8B7355;">🪵 Wood</button>
-                    <button class="block-btn" data-block="2" style="background: #A9A9A9;">🪨 Stone</button>
-                    <button class="block-btn" data-block="3" style="background: #90EE90;">🌱 Grass</button>
-                    <button class="block-btn" data-block="4" style="background: #FFD700;">⭐ Gold</button>
-                    <button class="block-btn" data-block="5" style="background: #FF6347;">🔴 Red</button>
-                </div>
-            </div>
-
-            <div class="info">
-                <h3>ℹ️ Info</h3>
-                <p>Build, explore, and survive in this simple voxel world! Break blocks to collect them, then place them to create amazing structures!</p>
-                <button id="resetBtn">🔄 Reset Game</button>
-            </div>
-        </div>
+    <div class="campaign-strip">
+      <div class="campaign-context">
+        <div class="season-mark">❄</div>
+        <div><strong>The War of Five Kings</strong><br><small>Winter is coming • the ravens are restless</small></div>
+      </div>
+      <div class="resource-list" aria-label="House resources">
+        <div class="resource"><span class="resource-icon">◈</span><div class="resource-copy"><b id="goldValue">842 <span class="positive">+45</span></b><small>Treasury</small></div></div>
+        <div class="resource"><span class="resource-icon">⌁</span><div class="resource-copy"><b id="supplyValue">68 <span class="positive">+4</span></b><small>Supplies</small></div></div>
+        <div class="resource"><span class="resource-icon">✦</span><div class="resource-copy"><b id="prestigeValue">31</b><small>Prestige</small></div></div>
+        <div class="resource"><span class="resource-icon">☽</span><div class="resource-copy"><b id="ravenValue">3</b><small>Ravens</small></div></div>
+      </div>
     </div>
 
-    <script src="game.js"></script>
+    <div class="workspace">
+      <aside class="left-rail">
+        <section class="panel house-card">
+          <div class="eyebrow">Player house</div>
+          <div class="house-identity">
+            <div class="house-sigil">🐺</div>
+            <div><h2>House Stark</h2><p class="title-line">Warden of the North</p></div>
+          </div>
+          <p class="motto">“The lone wolf dies, but the pack survives.”</p>
+          <div class="mini-stats">
+            <div class="mini-stat"><span>Legitimacy</span><strong id="legitimacyValue">72</strong></div>
+            <div class="mini-stat"><span>Command</span><strong id="commandValue">64</strong></div>
+          </div>
+          <button class="button primary" id="endTurnButton">End the turn <span>→</span></button>
+        </section>
+
+        <section class="panel">
+          <div class="section-title"><h3>Great houses</h3><small>Standing</small></div>
+          <div class="house-list">
+            <button class="house-row active" data-region="north"><span class="row-sigil">🐺</span><span>Stark</span><em>loyal</em></button>
+            <button class="house-row" data-region="westerlands"><span class="row-sigil">🦁</span><span>Lannister</span><em>hostile</em></button>
+            <button class="house-row" data-region="reach"><span class="row-sigil">🌹</span><span>Tyrell</span><em>wary</em></button>
+            <button class="house-row" data-region="stormlands"><span class="row-sigil">🦌</span><span>Baratheon</span><em>divided</em></button>
+            <button class="house-row" data-region="dorne"><span class="row-sigil">☀</span><span>Martell</span><em>watching</em></button>
+            <button class="house-row" data-region="iron-islands"><span class="row-sigil">🐙</span><span>Greyjoy</span><em>raiding</em></button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title"><h3>Realm influence</h3><small>North</small></div>
+          <div class="influence"><div class="progress-label"><span>Military reach</span><b>64%</b></div><div class="progress-track"><div class="progress-fill" style="width:64%"></div></div></div>
+          <div class="influence"><div class="progress-label"><span>Lordly loyalty</span><b>72%</b></div><div class="progress-track"><div class="progress-fill gold" style="width:72%"></div></div></div>
+          <p class="rail-note">Every banner you raise is a promise. Every promise has a cost.</p>
+        </section>
+      </aside>
+
+      <main class="main-column">
+        <div class="content-head">
+          <div>
+            <div class="eyebrow" id="viewEyebrow">The realm at a glance</div>
+            <h2 id="viewTitle">The Seven Kingdoms</h2>
+            <p id="viewSubtitle">A crown is a promise made in steel. Choose where yours will fall.</p>
+          </div>
+          <div class="head-actions">
+            <div class="round-chip"><b id="roundValue">Turn 06</b><small>of the campaign</small></div>
+            <button class="button ghost" id="ravenHeaderButton">☽ &nbsp; Send raven</button>
+          </div>
+        </div>
+
+        <section class="map-card" aria-label="Interactive map of Westeros">
+          <div class="map-card-head">
+            <div class="map-name"><span class="map-icon">✧</span><div><strong>Westeros — the known realm</strong><small>Political borders • 298 after conquest</small></div></div>
+            <div class="layer-tabs" role="tablist" aria-label="Map layers">
+              <button class="layer-btn active" data-layer="political">Political</button>
+              <button class="layer-btn" data-layer="armies">Armies</button>
+              <button class="layer-btn" data-layer="trade">Trade routes</button>
+            </div>
+          </div>
+          <div class="map-stage" id="mapStage">
+            <svg id="realmMap" viewBox="0 0 900 700" role="img" aria-labelledby="mapTitle mapDesc" preserveAspectRatio="xMidYMid meet">
+              <title id="mapTitle">A stylised political map of Westeros</title>
+              <desc id="mapDesc">The Seven Kingdoms, from the Wall in the north to Dorne in the south, with castles, roads, armies and sea routes.</desc>
+              <defs>
+                <linearGradient id="seaGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#173d45" />
+                  <stop offset=".55" stop-color="#103039" />
+                  <stop offset="1" stop-color="#0b252d" />
+                </linearGradient>
+                <pattern id="waterPattern" width="48" height="48" patternUnits="userSpaceOnUse" patternTransform="rotate(-12)">
+                  <rect width="48" height="48" fill="url(#seaGradient)" />
+                  <path d="M4 14 C13 9 20 19 29 14 S42 12 49 16 M-8 36 C1 31 8 41 17 36 S30 34 39 38" fill="none" stroke="rgba(151,205,201,.12)" stroke-width="1" />
+                </pattern>
+                <filter id="landShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#041014" flood-opacity=".5" /></filter>
+                <filter id="markerShadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#111" flood-opacity=".7" /></filter>
+                <filter id="selectedGlow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#e3b85f" flood-opacity=".55" /></filter>
+                <marker id="routeArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#e6b55e" /></marker>
+                <marker id="tradeArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7fc3bc" /></marker>
+              </defs>
+              <rect class="map-water" x="0" y="0" width="900" height="700" />
+              <g class="water-details" opacity=".9">
+                <path class="water-detail" d="M35 190 C80 172 116 204 159 186 S240 184 277 204" />
+                <path class="water-detail" d="M595 129 C654 108 708 139 779 115 S857 115 888 128" />
+                <path class="water-detail" d="M594 542 C670 519 739 553 812 524 S874 519 906 532" />
+                <path class="water-detail" d="M640 280 C693 263 731 285 789 269 S856 267 895 281" />
+                <path class="water-detail" d="M51 502 C100 483 143 514 181 494 S251 493 284 506" />
+              </g>
+              <g id="mapWorld" class="map-world">
+                <path class="land-back" d="M181 85 L445 73 L499 113 L501 165 L474 202 L514 215 L548 258 L521 321 L514 367 L558 408 L587 479 L528 531 L500 596 L425 650 L316 660 L250 592 L232 534 L239 461 L206 390 L168 334 L176 273 L153 232 L172 181 L155 143 Z" />
+
+                <!-- Political regions -->
+                <path class="region-shape selected" style="--fill:#667f80" data-region="north" d="M190 88 L444 76 L497 115 L474 166 L443 200 L367 210 L294 199 L239 220 L202 185 L174 144 Z" />
+                <path class="region-shape" style="--fill:#7f9a99" data-region="vale" d="M444 199 L506 204 L545 255 L519 319 L476 316 L437 275 Z" />
+                <path class="region-shape" style="--fill:#a39a77" data-region="riverlands" d="M284 203 L367 210 L443 199 L438 275 L386 345 L291 332 L253 277 Z" />
+                <path class="region-shape" style="--fill:#907662" data-region="westerlands" d="M176 245 L253 277 L291 332 L264 409 L206 388 L168 332 Z" />
+                <path class="region-shape" style="--fill:#b39a70" data-region="crownlands" d="M386 345 L438 275 L476 316 L515 370 L473 420 L416 400 Z" />
+                <path class="region-shape" style="--fill:#89966d" data-region="reach" d="M264 409 L291 332 L386 345 L416 400 L472 421 L417 520 L306 512 L236 453 Z" />
+                <path class="region-shape" style="--fill:#886f63" data-region="stormlands" d="M472 421 L515 370 L562 420 L584 482 L527 525 L417 520 Z" />
+                <path class="region-shape" style="--fill:#a78559" data-region="dorne" d="M306 512 L417 520 L527 525 L496 594 L425 644 L317 655 L252 590 Z" />
+                <path class="region-shape" style="--fill:#687c80" data-region="iron-islands" d="M121 265 L148 242 L176 263 L165 296 L140 311 L111 294 Z" />
+                <path class="region-shape" style="--fill:#6b7f80" data-region="iron-islands" d="M87 300 L106 286 L118 306 L103 324 L87 318 Z" />
+
+                <!-- The Wall, ranges, roads and borders -->
+                <path class="terrain terrain-ice" d="M180 122 L222 109 L268 116 L313 107 L359 114 L401 103 L448 112 L480 105" />
+                <path class="terrain terrain-ice" d="M188 132 L235 121 L282 128 L324 119 L369 127 L412 116 L454 125 L481 119" />
+                <path class="coast-line" d="M190 88 L444 76 L497 115 L474 166 M174 144 L202 185 L239 220 M294 199 L367 210 M443 200 L474 166" />
+                <path class="terrain" d="M221 166 l16 -26 l16 25 l18 -31 l16 29 l20 -22 l16 29" />
+                <path class="terrain" d="M313 175 l14 -20 l15 18 l15 -23 l14 25 l19 -18 l14 18" />
+                <path class="terrain" d="M302 258 l14 -19 l14 19 l15 -21 l15 20 l17 -22 l16 18" />
+                <path class="terrain" d="M205 315 l14 -18 l14 18 l16 -22 l16 25" />
+                <path class="terrain" d="M347 392 l16 -22 l16 20 l17 -24 l15 25 l18 -23" />
+                <path class="terrain" d="M335 563 l16 -17 l14 14 l18 -20 l15 18 l19 -17" />
+                <path class="terrain" d="M364 608 l17 -20 l16 18 l17 -22 l15 16 l18 -21" />
+                <path class="road" d="M385 238 C359 292 345 330 359 387 S381 465 364 531" />
+                <path class="road" d="M258 373 C303 361 352 360 412 384 S469 407 523 435" />
+                <path class="road" d="M465 332 C451 356 449 385 466 418" />
+                <path class="road" d="M371 529 C399 535 436 539 484 564" />
+                <path class="road" d="M248 448 C270 472 295 490 322 505" />
+
+                <!-- Active military routes -->
+                <g class="army-layer">
+                  <path class="route-line" d="M326 149 C348 205 361 264 357 327 C352 379 342 413 357 468" />
+                  <path class="route-line" d="M362 468 C401 465 435 448 479 420" />
+                  <g class="army-marker" data-region="north" transform="translate(335 151)"><circle r="15" /><text y="4">4.2k</text></g>
+                  <g class="army-marker enemy" data-region="westerlands" transform="translate(228 337)"><circle r="15" /><text y="4">6.8k</text></g>
+                  <g class="army-marker enemy" data-region="stormlands" transform="translate(501 462)"><circle r="15" /><text y="4">2.4k</text></g>
+                </g>
+                <g class="trade-layer">
+                  <path class="route-line trade hidden" data-trade-route="true" d="M458 352 C552 345 601 287 672 258" />
+                  <path class="route-line trade hidden" data-trade-route="true" d="M535 459 C620 481 680 506 747 535" />
+                  <circle class="port-ring hidden" data-trade-route="true" cx="458" cy="352" r="7" />
+                  <circle class="port-ring hidden" data-trade-route="true" cx="672" cy="258" r="7" />
+                  <circle class="port-ring hidden" data-trade-route="true" cx="535" cy="459" r="7" />
+                  <circle class="port-ring hidden" data-trade-route="true" cx="747" cy="535" r="7" />
+                </g>
+
+                <!-- Seats and settlements -->
+                <g class="settlement major" data-region="north" transform="translate(326 151)"><circle r="6" /><text x="10" y="3">WINTERFELL</text></g>
+                <g class="settlement" data-region="north" transform="translate(229 132)"><circle r="4" /><text x="8" y="3">The Wall</text></g>
+                <g class="settlement" data-region="vale" transform="translate(489 251)"><circle r="4" /><text x="9" y="3">THE EYRIE</text></g>
+                <g class="settlement major" data-region="riverlands" transform="translate(359 293)"><circle r="6" /><text x="10" y="3">RIVERRUN</text></g>
+                <g class="settlement major" data-region="westerlands" transform="translate(221 321)"><circle r="6" /><text x="10" y="3">CASTERLY ROCK</text></g>
+                <g class="settlement major" data-region="crownlands" transform="translate(454 361)"><circle r="7" /><text x="11" y="3">KING'S LANDING</text></g>
+                <g class="settlement major" data-region="reach" transform="translate(342 419)"><circle r="6" /><text x="10" y="3">HIGHGARDEN</text></g>
+                <g class="settlement major" data-region="stormlands" transform="translate(514 452)"><circle r="6" /><text x="10" y="3">STORM'S END</text></g>
+                <g class="settlement major" data-region="dorne" transform="translate(408 580)"><circle r="6" /><text x="10" y="3">SUNSPEAR</text></g>
+                <g class="settlement major" data-region="iron-islands" transform="translate(144 274)"><circle r="6" /><text x="10" y="3">PYKE</text></g>
+
+                <!-- Region labels -->
+                <text class="map-label major" x="336" y="184">THE NORTH</text>
+                <text class="map-label" x="480" y="292">THE VALE</text>
+                <text class="map-label" x="348" y="252">RIVERLANDS</text>
+                <text class="map-label" x="217" y="376">WESTERLANDS</text>
+                <text class="map-label small" x="450" y="392">CROWNLANDS</text>
+                <text class="map-label" x="342" y="478">THE REACH</text>
+                <text class="map-label" x="505" y="495">STORMLANDS</text>
+                <text class="map-label" x="389" y="624">DORNE</text>
+                <text class="map-label small" x="142" y="304">IRON ISLANDS</text>
+                <text class="sea-label" x="640" y="186">THE NARROW SEA</text>
+                <text class="sea-label" x="690" y="621">SUMMER SEA</text>
+                <text class="sea-label" x="104" y="445">SUNSET SEA</text>
+
+                <!-- Map ornaments -->
+                <g transform="translate(755 85)" opacity=".6">
+                  <circle r="39" fill="none" stroke="#d8bd7c" stroke-width="1" />
+                  <circle r="32" fill="none" stroke="#d8bd7c" stroke-width=".6" stroke-dasharray="2 5" />
+                  <path d="M0 -34 L5 0 L0 35 L-5 0 Z M-34 0 L0 -5 L34 0 L0 5 Z" fill="none" stroke="#d8bd7c" stroke-width="1" />
+                  <text x="0" y="-45" text-anchor="middle" fill="#e4c782" font-size="10" font-family="Georgia">E</text>
+                </g>
+              </g>
+            </svg>
+            <div class="map-controls" aria-label="Map controls">
+              <button class="map-control" id="zoomIn" aria-label="Zoom in">+</button>
+              <button class="map-control" id="zoomOut" aria-label="Zoom out">−</button>
+              <button class="map-control" id="resetMap" aria-label="Reset map view">⌂</button>
+            </div>
+            <div class="map-legend">
+              <div class="legend-title">Map key</div>
+              <div class="legend-row"><i class="legend-swatch realm"></i> realm border</div>
+              <div class="legend-row"><i class="legend-swatch enemy"></i> hostile host</div>
+              <div class="legend-row"><i class="legend-swatch route"></i> marching route</div>
+            </div>
+            <div class="map-compass" aria-hidden="true"><span>NORTH</span></div>
+            <div class="map-tooltip" id="mapTooltip"><strong>The North</strong><span>Winterfell • House Stark</span></div>
+          </div>
+          <div class="map-footer">
+            <div class="map-foot-cell"><span>Selected theatre</span><strong id="selectedTheatre">The North · Winterfell</strong></div>
+            <div class="map-foot-cell"><span>Realm stability</span><strong><span class="signal" id="stabilityValue">Fracturing</span> · 42%</strong></div>
+            <div class="map-foot-cell"><span>Last raven</span><strong id="lastRaven">Greywater Watch · 2h ago</strong></div>
+          </div>
+        </section>
+
+        <div class="lower-grid">
+          <section class="panel">
+            <div class="section-title"><h3>Active fronts</h3><small id="frontCount">3 contested</small></div>
+            <div class="front-list" id="frontList">
+              <div class="front-row"><div class="front-icon">⚔</div><div class="front-copy"><strong>The Golden Road</strong><small>Riverlands · Lannister host advancing</small></div><div class="front-status">pressing</div></div>
+              <div class="front-row"><div class="front-icon">⌁</div><div class="front-copy"><strong>Blackwater approaches</strong><small>Crownlands · ravens intercepted</small></div><div class="front-status">unstable</div></div>
+              <div class="front-row"><div class="front-icon">☼</div><div class="front-copy"><strong>The Prince's Pass</strong><small>Dorne · border holds</small></div><div class="front-status safe">quiet</div></div>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="section-title"><h3>Whispers &amp; ravens</h3><small>Fresh ink</small></div>
+            <div class="whisper"><b>A lion's debt</b><p>Lord Tywin's wagons have left Harrenhal. No one agrees where they mean to go.</p><time>Received this morning</time></div>
+            <div class="whisper"><b>Salt on the wind</b><p>Ironborn sails were sighted west of Seagard. The coast villages are lighting beacons.</p><time>Received yesterday</time></div>
+          </section>
+        </div>
+        <section class="panel chronicle-panel" id="chroniclePanel">
+          <div class="section-title"><h3>Campaign chronicle</h3><small>What the realm remembers</small></div>
+          <div class="raven-list" id="chronicleList"></div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <section class="panel region-card">
+          <div class="eyebrow">Selected province</div>
+          <div class="region-heading">
+            <div class="region-swatch" id="regionSwatch"></div>
+            <div><h2 id="regionName">The North</h2><p id="regionSeat">Winterfell · House Stark</p><div class="region-loyalty" id="regionStatus">Loyal to the wolf</div></div>
+          </div>
+          <div class="region-facts">
+            <div class="fact"><span>Garrison</span><strong id="regionGarrison">4,200</strong></div>
+            <div class="fact"><span>Power</span><strong id="regionPower">74 / 100</strong></div>
+            <div class="fact"><span>Tax yield</span><strong id="regionYield">+45 gold</strong></div>
+            <div class="fact"><span>Supply</span><strong id="regionSupply">62 days</strong></div>
+          </div>
+          <div class="region-bar"><div class="progress-label"><span>Local loyalty</span><b id="loyaltyValue">78%</b></div><div class="progress-track"><div class="progress-fill" id="loyaltyBar" style="width:78%"></div></div></div>
+          <div class="region-bar"><div class="progress-label"><span>War readiness</span><b id="readinessValue">66%</b></div><div class="progress-track"><div class="progress-fill red" id="readinessBar" style="width:66%"></div></div></div>
+          <div class="region-actions">
+            <button class="button small" id="marchButton">⚔ March host</button>
+            <button class="button small" id="levyButton">♜ Raise levies</button>
+            <button class="button small ghost" id="ravenButton">☽ Send a raven</button>
+          </div>
+        </section>
+
+        <section class="panel alert-panel">
+          <div class="alert-kicker"><span>Raven arrives</span><span>Decision required</span></div>
+          <h3 id="alertTitle">A letter sealed in black wax</h3>
+          <p id="alertBody">The Eyrie offers safe passage, but Lady Arryn asks for a pledge that may anger the river lords.</p>
+          <button class="button small danger" id="respondButton">Read the letter <span>→</span></button>
+        </section>
+
+        <section class="panel">
+          <div class="section-title"><h3>Recent dispatches</h3><small>Latest</small></div>
+          <div class="raven-list" id="dispatchList">
+            <div class="raven-entry"><div class="raven-icon">☽</div><div><p><strong>Maester Luwin</strong> confirms the granaries at Winterfell are full.</p><time>2 hours ago</time></div></div>
+            <div class="raven-entry"><div class="raven-icon">✦</div><div><p><strong>Ser Rodrik</strong> requests leave to call the northern banners.</p><time>Yesterday · 18:40</time></div></div>
+            <div class="raven-entry"><div class="raven-icon">⚑</div><div><p><strong>Unknown hand</strong> has marked three Lannister camps on your map.</p><time>Yesterday · 09:12</time></div></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"><strong id="toastTitle">Raven dispatched</strong><span id="toastBody">The message is on its way.</span></div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div class="eyebrow">The ravenry · turn <span id="modalTurn">06</span></div>
+      <h2 id="modalTitle">A letter sealed in black wax</h2>
+      <p id="modalDescription">Lady Arryn's words are courteous. Her meaning is not. Choose the answer that will echo through the next council.</p>
+      <div class="choice-list" id="choiceList">
+        <button class="choice" data-choice="pledge"><strong>Swear the pledge</strong><span>Gain the Vale's goodwill. Spend 10 prestige and bind yourself to their quarrel.</span></button>
+        <button class="choice" data-choice="decline"><strong>Decline with courtesy</strong><span>Keep your hand free, but the Eyrie will remember the slight.</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const regionData = {
+        north: {
+          name: "The North", seat: "Winterfell", house: "House Stark", status: "Loyal to the wolf", color: "#667f80",
+          garrison: 4200, power: 74, yield: 45, supply: 62, loyalty: 78, readiness: 66,
+          description: "The old heart of the realm: wide, cold, and loyal when properly fed.",
+          dispatch: "Maester Luwin confirms the granaries at Winterfell are full."
+        },
+        vale: {
+          name: "The Vale", seat: "The Eyrie", house: "House Arryn", status: "Watching the passes", color: "#7f9a99",
+          garrison: 2900, power: 61, yield: 38, supply: 49, loyalty: 44, readiness: 58,
+          description: "Mountain gates and a proud young lord make every alliance here a gamble.",
+          dispatch: "The Eyrie offers safe passage, but asks for a pledge in return."
+        },
+        riverlands: {
+          name: "The Riverlands", seat: "Riverrun", house: "House Tully", status: "Under pressure", color: "#a39a77",
+          garrison: 3600, power: 57, yield: 34, supply: 39, loyalty: 61, readiness: 78,
+          description: "Open country between every army in Westeros. Its loyalties are paid in blood.",
+          dispatch: "Refugees from the Golden Road crowd the gates of Riverrun."
+        },
+        westerlands: {
+          name: "The Westerlands", seat: "Casterly Rock", house: "House Lannister", status: "Hostile to the wolf", color: "#907662",
+          garrison: 6800, power: 89, yield: 82, supply: 77, loyalty: 28, readiness: 91,
+          description: "Gold buys a great many swords. It cannot buy every silence.",
+          dispatch: "Lannister wagons move east beneath a red-and-gold sun."
+        },
+        crownlands: {
+          name: "The Crownlands", seat: "King's Landing", house: "The Iron Throne", status: "Crown divided", color: "#b39a70",
+          garrison: 5100, power: 81, yield: 69, supply: 55, loyalty: 35, readiness: 73,
+          description: "The capital smiles from behind its walls while every faction counts the gates.",
+          dispatch: "Gold cloaks have doubled the watch on the Street of Sisters."
+        },
+        reach: {
+          name: "The Reach", seat: "Highgarden", house: "House Tyrell", status: "Wary of every oath", color: "#89966d",
+          garrison: 7300, power: 84, yield: 88, supply: 92, loyalty: 47, readiness: 63,
+          description: "The richest fields in the realm, and the most carefully tended ambitions.",
+          dispatch: "A Tyrell envoy asks whether the North can protect southern grain routes."
+        },
+        stormlands: {
+          name: "The Stormlands", seat: "Storm's End", house: "House Baratheon", status: "Claim disputed", color: "#886f63",
+          garrison: 2400, power: 54, yield: 41, supply: 44, loyalty: 39, readiness: 69,
+          description: "Storm and stone have made hard lords here. Their banners are not yet settled.",
+          dispatch: "Two Baratheon captains claim the same road and draw steel over it."
+        },
+        dorne: {
+          name: "Dorne", seat: "Sunspear", house: "House Martell", status: "Proudly neutral", color: "#a78559",
+          garrison: 3900, power: 67, yield: 56, supply: 71, loyalty: 52, readiness: 46,
+          description: "Dorne waits in the sun, remembering every old wound and choosing its hour.",
+          dispatch: "No banners move in Dorne. That silence is not the same as peace."
+        },
+        "iron-islands": {
+          name: "The Iron Islands", seat: "Pyke", house: "House Greyjoy", status: "Raiding the coast", color: "#687c80",
+          garrison: 3100, power: 63, yield: 27, supply: 36, loyalty: 22, readiness: 86,
+          description: "Salt, iron, and ships: the western coast hears the kraken before it sees it.",
+          dispatch: "Ironborn sails were sighted west of Seagard; beacons burn along the coast."
+        }
+      };
+
+      const state = {
+        round: 6,
+        view: "map",
+        layer: "political",
+        selectedRegion: "north",
+        zoom: 1,
+        gold: 842,
+        supply: 68,
+        prestige: 31,
+        ravens: 3,
+        legitimacy: 72,
+        command: 64,
+        logs: [
+          { icon: "✦", text: "The northern council has chosen to wait before calling all banners.", time: "Turn 06 · dawn" },
+          { icon: "⚔", text: "Scouts report a Lannister host moving along the Golden Road.", time: "Turn 05 · dusk" },
+          { icon: "☽", text: "The Eyrie has sent a letter sealed in black wax.", time: "Turn 05 · midday" }
+        ]
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const all = (selector) => [...document.querySelectorAll(selector)];
+
+      function formatNumber(number) {
+        return Math.round(number).toLocaleString("en-US");
+      }
+
+      function setText(id, value) {
+        const element = $(id);
+        if (element) element.textContent = value;
+      }
+
+      function renderResources() {
+        $("goldValue").innerHTML = `${state.gold.toLocaleString("en-US")} <span class="positive">+${45 + Math.floor(state.round / 3) * 3}</span>`;
+        $("supplyValue").innerHTML = `${state.supply} <span class="positive">+4</span>`;
+        setText("prestigeValue", state.prestige);
+        setText("ravenValue", state.ravens);
+        setText("legitimacyValue", state.legitimacy);
+        setText("commandValue", state.command);
+        setText("roundValue", `Turn ${String(state.round).padStart(2, "0")}`);
+        setText("modalTurn", String(state.round).padStart(2, "0"));
+      }
+
+      function setProgress(id, value) {
+        const bar = $(id);
+        if (bar) bar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+      }
+
+      function renderRegion() {
+        const region = regionData[state.selectedRegion];
+        if (!region) return;
+        setText("regionName", region.name);
+        setText("regionSeat", `${region.seat} · ${region.house}`);
+        setText("regionStatus", region.status);
+        setText("regionGarrison", formatNumber(region.garrison));
+        setText("regionPower", `${region.power} / 100`);
+        setText("regionYield", `+${region.yield} gold`);
+        setText("regionSupply", `${region.supply} days`);
+        setText("loyaltyValue", `${region.loyalty}%`);
+        setText("readinessValue", `${region.readiness}%`);
+        setProgress("loyaltyBar", region.loyalty);
+        setProgress("readinessBar", region.readiness);
+        setText("selectedTheatre", `${region.name} · ${region.seat}`);
+        $("regionSwatch").style.setProperty("--region-color", region.color);
+        all(".region-shape").forEach((shape) => {
+          shape.classList.toggle("selected", shape.dataset.region === state.selectedRegion);
+          if (state.layer === "political") shape.classList.remove("dimmed");
+          else shape.classList.toggle("dimmed", shape.dataset.region !== state.selectedRegion);
+        });
+        all(".house-row").forEach((row) => row.classList.toggle("active", row.dataset.region === state.selectedRegion));
+      }
+
+      function renderLayer() {
+        all(".layer-btn").forEach((button) => button.classList.toggle("active", button.dataset.layer === state.layer));
+        const armyLayer = document.querySelector(".army-layer");
+        const tradeLayer = document.querySelector(".trade-layer");
+        if (armyLayer) armyLayer.style.opacity = state.layer === "trade" ? ".18" : "1";
+        if (tradeLayer) tradeLayer.style.opacity = state.layer === "armies" ? ".15" : "1";
+        all("[data-trade-route]").forEach((item) => item.classList.toggle("hidden", state.layer !== "trade"));
+        all(".army-marker").forEach((item) => item.style.opacity = state.layer === "trade" ? ".2" : "1");
+        renderRegion();
+      }
+
+      function renderView() {
+        const copy = {
+          map: ["The realm at a glance", "The Seven Kingdoms", "A crown is a promise made in steel. Choose where yours will fall."],
+          council: ["The king's council", "Oaths & leverage", "Peace is simply war waiting for the right letter."],
+          war: ["The war room", "Steel answers steel", "Count the banners, guard the roads, and decide which losses you can afford."],
+          chronicle: ["The maester's record", "What the realm remembers", "A campaign is not won once. It is remembered differently by every survivor."]
+        }[state.view];
+        setText("viewEyebrow", copy[0]);
+        setText("viewTitle", copy[1]);
+        setText("viewSubtitle", copy[2]);
+        document.body.dataset.view = state.view;
+        all(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.view === state.view));
+        if (state.view === "war" && state.layer !== "armies") {
+          state.layer = "armies";
+          renderLayer();
+        } else if (state.view === "council" && state.layer !== "political") {
+          state.layer = "political";
+          renderLayer();
+        }
+      }
+
+      function renderChronicle() {
+        const list = $("chronicleList");
+        if (!list) return;
+        list.innerHTML = state.logs.map((log) => `<div class="raven-entry"><div class="raven-icon">${log.icon}</div><div><p>${log.text}</p><time>${log.time}</time></div></div>`).join("");
+      }
+
+      function addLog(text, icon = "✦") {
+        state.logs.unshift({ icon, text, time: `Turn ${String(state.round).padStart(2, "0")} · now` });
+        state.logs = state.logs.slice(0, 8);
+        renderChronicle();
+      }
+
+      let toastTimer;
+      function toast(title, body) {
+        setText("toastTitle", title);
+        setText("toastBody", body);
+        const node = $("toast");
+        node.classList.add("visible");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => node.classList.remove("visible"), 3600);
+      }
+
+      function selectRegion(regionId) {
+        if (!regionData[regionId]) return;
+        state.selectedRegion = regionId;
+        renderRegion();
+        const region = regionData[regionId];
+        setText("lastRaven", `${region.seat} · just now`);
+        setText("stabilityValue", region.loyalty > 65 ? "Holding" : region.loyalty > 42 ? "Fracturing" : "Near revolt");
+      }
+
+      function updateLayerAndSelection() {
+        renderLayer();
+        renderRegion();
+      }
+
+      function marchHost() {
+        const region = regionData[state.selectedRegion];
+        if (state.supply < 10 || state.command < 8) {
+          toast("The host cannot march", "You need 10 supplies and 8 command to move the banners.");
+          return;
+        }
+        state.supply -= 10;
+        state.command -= 8;
+        region.readiness = Math.max(0, region.readiness - 6);
+        region.loyalty = Math.min(100, region.loyalty + (state.selectedRegion === "north" ? 1 : 3));
+        addLog(`Your host marches toward ${region.seat}; every lord now knows where the wolf is headed.`, "⚔");
+        toast("Host on the road", `${region.name} will feel the weight of your banners.`);
+        renderResources(); renderRegion();
+      }
+
+      function raiseLevies() {
+        const region = regionData[state.selectedRegion];
+        if (state.gold < 100 || state.supply < 5) {
+          toast("The levy bell is silent", "Raise 100 gold and 5 supplies before you call more swords.");
+          return;
+        }
+        state.gold -= 100;
+        state.supply -= 5;
+        region.garrison += 650;
+        region.readiness = Math.min(100, region.readiness + 12);
+        region.loyalty = Math.max(0, region.loyalty - 2);
+        addLog(`${region.seat} answers the levy. 650 swords join your garrison, though the smallfolk grumble.`, "♜");
+        toast("Banners raised", `The garrison at ${region.seat} grows by 650.`);
+        renderResources(); renderRegion();
+      }
+
+      function dispatchRaven() {
+        if (state.ravens < 1) {
+          toast("No ravens remain", "The rookery is empty until the next turn.");
+          return;
+        }
+        const region = regionData[state.selectedRegion];
+        state.ravens -= 1;
+        region.loyalty = Math.min(100, region.loyalty + 4);
+        addLog(`A raven leaves for ${region.seat}; your words may arrive before your soldiers.`, "☽");
+        setText("lastRaven", `${region.seat} · just sent`);
+        toast("Raven dispatched", `Your message is flying to ${region.seat}.`);
+        renderResources(); renderRegion();
+      }
+
+      function endTurn() {
+        state.round += 1;
+        const tax = 45 + Math.floor(state.round / 3) * 3;
+        state.gold += tax;
+        state.supply = Math.max(0, state.supply + 4 - (state.round % 4 === 0 ? 5 : 0));
+        state.ravens = Math.min(5, state.ravens + 1);
+        state.command = Math.min(100, state.command + 4);
+        const region = regionData[state.selectedRegion];
+        region.loyalty = Math.max(0, Math.min(100, region.loyalty + (state.round % 2 ? 1 : -1)));
+        const seasonal = state.round % 3 === 0;
+        if (seasonal) {
+          state.supply = Math.max(0, state.supply - 5);
+          addLog("An early frost cuts the roads. Every army will consume more before the next thaw.", "❄");
+          toast("The cold deepens", "Winter takes 5 supplies from the realm.");
+        } else {
+          addLog(`The sun sets on turn ${String(state.round - 1).padStart(2, "0")}. Taxes arrive, and the realm waits for your next order.`, "✦");
+          toast(`Turn ${String(state.round).padStart(2, "0")} begins`, `The treasury receives ${tax} gold and a fresh raven.`);
+        }
+        renderResources(); renderRegion();
+      }
+
+      function openModal(kind = "letter") {
+        const modal = $("modalBackdrop");
+        if (kind === "letter") {
+          setText("modalTitle", "A letter sealed in black wax");
+          setText("modalDescription", "Lady Arryn's words are courteous. Her meaning is not. Choose the answer that will echo through the next council.");
+          $("choiceList").innerHTML = `
+            <button class="choice" data-choice="pledge"><strong>Swear the pledge</strong><span>Gain the Vale's goodwill. Spend 10 prestige and bind yourself to their quarrel.</span></button>
+            <button class="choice" data-choice="decline"><strong>Decline with courtesy</strong><span>Keep your hand free, but the Eyrie will remember the slight.</span></button>`;
+        } else {
+          const region = regionData[state.selectedRegion];
+          setText("modalTitle", `A raven for ${region.seat}`);
+          setText("modalDescription", `Write a message to ${region.house}. Your words will shape local loyalty, but ravens do not fly for free.`);
+          $("choiceList").innerHTML = `
+            <button class="choice" data-choice="reassure"><strong>Promise protection</strong><span>Spend one raven to strengthen the province's loyalty by four.</span></button>
+            <button class="choice" data-choice="threaten"><strong>Demand obedience</strong><span>Spend one raven to project strength. It may win fear instead of love.</span></button>`;
+        }
+        modal.classList.add("open");
+      }
+
+      function closeModal() { $("modalBackdrop").classList.remove("open"); }
+
+      function chooseModal(choice) {
+        closeModal();
+        if (choice === "pledge") {
+          if (state.prestige < 10) { toast("The pledge fails", "Your court lacks the prestige to make this promise credible."); return; }
+          state.prestige -= 10;
+          regionData.vale.loyalty = Math.min(100, regionData.vale.loyalty + 14);
+          addLog("You swore to defend the Vale. Lady Arryn's seal now sits beside your own.", "✒");
+          toast("An oath is made", "The Vale's loyalty rises. Your rivals will ask what you promised.");
+          renderResources(); if (state.selectedRegion === "vale") renderRegion();
+        } else if (choice === "decline") {
+          regionData.vale.loyalty = Math.max(0, regionData.vale.loyalty - 7);
+          addLog("You declined the Vale's pledge. The letter returned without a second seal.", "✒");
+          toast("Courtesy has its cost", "The Vale will remember that you kept your hand free.");
+          if (state.selectedRegion === "vale") renderRegion();
+        } else if (choice === "reassure") {
+          dispatchRaven();
+        } else if (choice === "threaten") {
+          if (state.ravens < 1) { toast("The rookery is empty", "No raven can carry that command."); return; }
+          state.ravens -= 1;
+          const region = regionData[state.selectedRegion];
+          region.readiness = Math.min(100, region.readiness + 5);
+          region.loyalty = Math.max(0, region.loyalty - 3);
+          addLog(`Your raven carries a hard command to ${region.seat}. The garrison readies, but the people grow cold.`, "☽");
+          toast("The command is away", "Readiness rises. Loyalty has a longer memory.");
+          renderResources(); renderRegion();
+        }
+      }
+
+      function setZoom(nextZoom) {
+        state.zoom = Math.max(.82, Math.min(1.38, nextZoom));
+        $("mapWorld").style.transform = `scale(${state.zoom})`;
+      }
+
+      function bindMap() {
+        all(".region-shape, .settlement, .army-marker").forEach((node) => {
+          node.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectRegion(node.dataset.region || node.closest("[data-region]")?.dataset.region);
+          });
+          node.addEventListener("mouseenter", (event) => {
+            const id = node.dataset.region || node.closest("[data-region]")?.dataset.region;
+            const region = regionData[id];
+            if (!region) return;
+            const tip = $("mapTooltip");
+            tip.innerHTML = `<strong>${region.name}</strong><span>${region.seat} · ${region.house}</span>`;
+            const stageRect = $("mapStage").getBoundingClientRect();
+            const nodeRect = node.getBoundingClientRect();
+            const left = Math.min(stageRect.width - 175, Math.max(10, nodeRect.left - stageRect.left + nodeRect.width / 2 - 78));
+            const top = Math.max(10, nodeRect.top - stageRect.top - 66);
+            tip.style.left = `${left}px`;
+            tip.style.top = `${top}px`;
+            tip.classList.add("visible");
+          });
+          node.addEventListener("mouseleave", () => $("mapTooltip").classList.remove("visible"));
+        });
+        $("zoomIn").addEventListener("click", () => setZoom(state.zoom + .12));
+        $("zoomOut").addEventListener("click", () => setZoom(state.zoom - .12));
+        $("resetMap").addEventListener("click", () => setZoom(1));
+        all(".layer-btn").forEach((button) => button.addEventListener("click", () => { state.layer = button.dataset.layer; updateLayerAndSelection(); }));
+      }
+
+      function bindInteractions() {
+        all(".nav-btn").forEach((button) => button.addEventListener("click", () => { state.view = button.dataset.view; renderView(); }));
+        all(".house-row").forEach((button) => button.addEventListener("click", () => selectRegion(button.dataset.region)));
+        $("endTurnButton").addEventListener("click", endTurn);
+        $("marchButton").addEventListener("click", marchHost);
+        $("levyButton").addEventListener("click", raiseLevies);
+        $("ravenButton").addEventListener("click", () => openModal("raven"));
+        $("ravenHeaderButton").addEventListener("click", () => openModal("raven"));
+        $("respondButton").addEventListener("click", () => openModal("letter"));
+        $("modalClose").addEventListener("click", closeModal);
+        $("modalBackdrop").addEventListener("click", (event) => { if (event.target === $("modalBackdrop")) closeModal(); });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
+        $("choiceList").addEventListener("click", (event) => {
+          const choice = event.target.closest(".choice")?.dataset.choice;
+          if (choice) chooseModal(choice);
+        });
+      }
+
+      bindMap();
+      bindInteractions();
+      renderResources();
+      renderRegion();
+      renderLayer();
+      renderView();
+      renderChronicle();
+    })();
+  </script>
 </body>
 </html>
